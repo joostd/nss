@@ -25,6 +25,8 @@
 #include <functional>
 #include <vector>
 
+#include <optional>
+
 #include "pkixgtest.h"
 
 #include "mozpkix/pkixtypes.h"
@@ -309,7 +311,7 @@ INSTANTIATE_TEST_SUITE_P(pkixder_DigestAlgorithmIdentifier_Invalid,
 struct ValidSignatureAlgorithmIdentifierValueTestInfo
 {
   PublicKeyAlgorithm publicKeyAlg;
-  DigestAlgorithm digestAlg;
+  std::optional<DigestAlgorithm> digestAlg;
   uint8_t der[MAX_ALGORITHM_OID_DER_LENGTH];
   size_t derLength;
   bool explicitNullAllowed;
@@ -441,12 +443,12 @@ TEST_P(pkixder_SignatureAlgorithmIdentifierValue_Valid, Valid)
     ASSERT_EQ(Success, input.Init(param.der, param.derLength));
     Reader reader(input);
     PublicKeyAlgorithm publicKeyAlg;
-    DigestAlgorithm digestAlg;
+    std::optional<DigestAlgorithm> digestAlg;
     ASSERT_EQ(Success,
               SignatureAlgorithmIdentifierValue(reader, publicKeyAlg,
                                                 digestAlg));
     ASSERT_EQ(param.publicKeyAlg, publicKeyAlg);
-    ASSERT_EQ(param.digestAlg, digestAlg);
+    ASSERT_EQ(param.digestAlg, digestAlg.value());
     ASSERT_EQ(Success, End(reader));
   }
 
@@ -459,7 +461,7 @@ TEST_P(pkixder_SignatureAlgorithmIdentifierValue_Valid, Valid)
   ASSERT_EQ(Success, input.Init(derWithNullParam, param.derLength + 2));
   Reader reader(input);
   PublicKeyAlgorithm publicKeyAlg;
-  DigestAlgorithm digestAlg;
+  std::optional<DigestAlgorithm> digestAlg;
   ASSERT_EQ(param.explicitNullAllowed
               ? Success
               : Result::ERROR_CERT_SIGNATURE_ALGORITHM_DISABLED,
@@ -467,7 +469,7 @@ TEST_P(pkixder_SignatureAlgorithmIdentifierValue_Valid, Valid)
                                               digestAlg));
   if (param.explicitNullAllowed) {
     ASSERT_EQ(param.publicKeyAlg, publicKeyAlg);
-    ASSERT_EQ(param.digestAlg, digestAlg);
+    ASSERT_EQ(param.digestAlg, digestAlg.value());
     ASSERT_EQ(Success, End(reader));
   }
 }
@@ -550,7 +552,7 @@ TEST_P(pkixder_SignatureAlgorithmIdentifier_Invalid, Invalid)
   ASSERT_EQ(Success, input.Init(param.der, param.derLength));
   Reader reader(input);
   der::PublicKeyAlgorithm publicKeyAlg;
-  DigestAlgorithm digestAlg;
+  std::optional<DigestAlgorithm> digestAlg;
   ASSERT_EQ(Result::ERROR_CERT_SIGNATURE_ALGORITHM_DISABLED,
             SignatureAlgorithmIdentifierValue(reader, publicKeyAlg, digestAlg));
 }

@@ -379,10 +379,14 @@
         'msvs_settings': {
           'VCCLCompilerTool': {
             'AdditionalIncludeDirectories': ['<(nspr_include_dir)'],
+            # MSVC defaults to C++14; mozpkix needs C++17. Passed through
+            # AdditionalOptions the same way /EHsc already is: cl ignores
+            # /std:c++ options when compiling C.
+            'AdditionalOptions': [ '/std:c++17' ],
           },
         },
         'xcode_settings': {
-          'CLANG_CXX_LANGUAGE_STANDARD': 'c++0x',
+          'CLANG_CXX_LANGUAGE_STANDARD': 'c++17',
           'OTHER_CFLAGS': [
             '-fPIC',
             '-fno-common',
@@ -444,7 +448,7 @@
               '-std=c99',
             ],
             'cflags_cc': [
-              '-std=c++11',
+              '-std=c++17',
             ],
             'conditions': [
               [ 'target_arch=="ia32"', {

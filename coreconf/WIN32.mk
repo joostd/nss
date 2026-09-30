@@ -261,10 +261,11 @@ else
 endif
 endif
 
-# clear any CSTD and CXXSTD unless we're using GCC
+# The gcc -std= spellings do not apply to cl; clear CSTD and use the MSVC
+# form of CXXSTD. mozpkix needs C++17 and cl defaults to C++14.
 ifndef NS_USE_GCC
         CSTD    =
-        CXXSTD  =
+        CXXSTD  = -std:c++17
 endif
 
 #
